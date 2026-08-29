@@ -20,7 +20,7 @@ def cep_para_latlong(cep):
         headers=headers
     )
 
-    print("Calculando sua rota.....")
+    print("Calculando distância.....")
     time.sleep(1)  # respeitar rate limit do Nominatim (1 req/s)
 
     resultados = r2.json()
@@ -37,7 +37,7 @@ def calcular_rota(cep_origem, cep_destino):
     lat2, lon2 = cep_para_latlong(cep_destino)
 
     # OSRM espera lon,lat (invertido!)
-    print("Calculando sua rota.....")
+    print("Calculando distância.....")
     url = (
         f"https://router.project-osrm.org/route/v1/driving/"
         f"{lon1},{lat1};{lon2},{lat2}"
