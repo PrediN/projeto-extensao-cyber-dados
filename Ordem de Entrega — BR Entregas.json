@@ -1,0 +1,266 @@
+{
+  "name": "Ordem de Entrega — BR Entregas",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://SEU_EVOLUTION_API_HOST/message/sendText/SUA_INSTANCIA",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "SUA_API_KEY_AQUI"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"number\": \"ID_DO_GRUPO@g.us\",\n  \"text\": \"{{ $json.mensagem }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        256
+      ],
+      "id": "bfb17489-5049-463a-bfca-51e33f3a7c84",
+      "name": "Enviar WhatsApp"
+    },
+    {
+      "parameters": {
+        "formTitle": "Solicitação de Ordem de Entrega",
+        "formDescription": "Formulário de solicitação de Ordens de Entrega da BR Entregas e Transportes",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nome do solicitante",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Tipo de veículo:",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Moto (até 20kg)"
+                  },
+                  {
+                    "option": "Carro de Passeio (até 120)"
+                  },
+                  {
+                    "option": "Fiorino"
+                  },
+                  {
+                    "option": "VUC"
+                  },
+                  {
+                    "option": "Van/Sprinter"
+                  },
+                  {
+                    "option": "Truck/Toco"
+                  },
+                  {
+                    "option": "3/4 (Três quartos)"
+                  },
+                  {
+                    "option": "Cavalo e Carreta"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Tipo de carga",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Carga geral"
+                  },
+                  {
+                    "option": "Alimentos"
+                  },
+                  {
+                    "option": "Liquidos"
+                  },
+                  {
+                    "option": "Cargas especiais"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "CEP de Origem",
+              "placeholder": "12345678",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Endereço completo de Origem ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "CEP de Destino",
+              "placeholder": "12345678",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Endereço completo de Destino",
+              "placeholder": "Rua da Silva, 123 - Apto 456",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Referencia"
+            },
+            {
+              "fieldLabel": "Nome do destinatario:",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        352,
+        144
+      ],
+      "id": "4827c928-8877-44e1-b54d-e4199aaa8791",
+      "name": "On form submission1",
+      "webhookId": "36c4363e-beff-409f-9f97-23abd7093a79",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "Criat tabela com estes parametros:\n\nCREATE TABLE ordens_entrega (\n    id          SERIAL          PRIMARY KEY,\n\n    veiculo     VARCHAR(50)     NOT NULL,\n    carga       VARCHAR(100)    NOT NULL,\n\n    nome_origem       VARCHAR(150)  NOT NULL,\n    cep_origem        CHAR(8)       NOT NULL,\n    endereco_origem   VARCHAR(255)  NOT NULL,\n\n    nome_destino      VARCHAR(150)  NOT NULL,\n    cep_destino       CHAR(8)       NOT NULL,\n    endereco_destino  VARCHAR(255)  NOT NULL,\n    referencia  VARCHAR(100)  NULL,\n\n    status      VARCHAR(30)     NOT NULL  DEFAULT 'pendente',\n    criado_em   TIMESTAMP       NOT NULL  DEFAULT CURRENT_TIMESTAMP\n);",
+        "height": 416,
+        "width": 928
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -496
+      ],
+      "id": "8969438b-2825-4bf9-ba32-823d8e66adea",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = $input.item.json;\n\nconst veiculo = data['Tipo de veículo:'] ?? '';\nconst carga   = data['Tipo de carga']   ?? '';\nconst nome_ori = (data['Nome do solicitante'] ?? '').trim();\nconst cep_ori = (data['CEP de Origem']  ?? '').replace('-', '').trim();\nconst end_ori = (data['Endereço completo de Origem '] ?? '').trim();\nconst nome_dst = (data['Nome do destinatario:'] ?? '').trim();\nconst cep_dst = (data['CEP de Destino'] ?? '').replace('-', '').trim();\nconst end_dst = (data['Endereço completo de Destino'] ?? '').trim();\nconst referencia = (data['Referencia'] ?? '').trim();\n\nconst mensagem =\n  `🚚 *NOVA ORDEM DE ENTREGA*\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━━\\n` +\n  `🫡 *Solicitante*: ${nome_ori}\\n` +\n  `🚗 *Veículo:* ${veiculo}\\n` +\n  `📦 *Carga:* ${carga}\\n` +\n  `\\n` +\n  `📍 *ORIGEM*\\n` +\n  `CEP: ${cep_ori}\\n` +\n  `Endereço: ${end_ori}\\n` +\n  `\\n` +\n  `🏁 *DESTINO*\\n` +\n  `Nome destinatário: ${nome_dst}\\n` +\n  `CEP: ${cep_dst}\\n` +\n  `Endereço: ${end_dst}\\n` +\n  `Referencia: ${referencia}\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━━\\n`;\n\nreturn {\n  veiculo,\n  carga,\n  nome_ori,\n  cep_ori,\n  end_ori,\n  nome_dst,\n  cep_dst,\n  end_dst,\n  referencia,\n  mensagem,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        144
+      ],
+      "id": "88c87f17-0a2d-421c-975b-4353e141293b",
+      "name": "Parser de Form -> Query SQL"
+    },
+    {
+      "parameters": {
+        "tableId": "ordens_entrega",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "veiculo",
+              "fieldValue": "={{ $json.veiculo }}"
+            },
+            {
+              "fieldId": "carga",
+              "fieldValue": "={{ $json.carga }}"
+            },
+            {
+              "fieldId": "nome_origem",
+              "fieldValue": "={{ $json.nome_ori }}"
+            },
+            {
+              "fieldId": "cep_origem",
+              "fieldValue": "={{ $json.cep_ori }}"
+            },
+            {
+              "fieldId": "endereco_origem",
+              "fieldValue": "={{ $json.end_ori }}"
+            },
+            {
+              "fieldId": "nome_destino",
+              "fieldValue": "={{ $json.nome_dst }}"
+            },
+            {
+              "fieldId": "cep_destino",
+              "fieldValue": "={{ $json.cep_dst }}"
+            },
+            {
+              "fieldId": "endereco_destino",
+              "fieldValue": "={{ $json.end_dst }}"
+            },
+            {
+              "fieldId": "referencia",
+              "fieldValue": "={{ $json.referencia }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        32
+      ],
+      "id": "a43a294f-3fca-4f08-a4cc-4b3c257750ce",
+      "name": "Create a row"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Parser de Form -> Query SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser de Form -> Query SQL": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "cdc92370-44ae-4087-9579-3314066e8164",
+  "meta": {
+    "instanceId": "9ae322d0c3918ddca1bf347791dc86fb4199947eaea796d2c1602196d6e96d71"
+  },
+  "nodeGroups": [],
+  "id": "4M06MSOiRfC83Sxu",
+  "tags": []
+}
