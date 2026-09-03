@@ -1,0 +1,40 @@
+version: "3.3"
+
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: always
+    ports:
+      - "80:5678"
+    environment:
+      - N8N_SECURE_COOKIE=false
+    networks:
+      - automation-net
+
+  waha:
+    image: devlikeapro/waha
+    container_name: waha
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - WHATSAPP_DEFAULT_ENGINE=NOWEB
+      - WHATSAPP_HOOK_URL=http://n8n:5678/webhook/whatsapp-incoming
+      - WHATSAPP_HOOK_EVENTS=message
+    volumes:
+      - waha_sessions:/app/.sessions
+    networks:
+      - automation-net
+    depends_on:
+      - n8n
+
+volumes:
+  waha_sessions:
+
+networks:
+  automation-net:
+    name: automation-net
+    driver: bridge
