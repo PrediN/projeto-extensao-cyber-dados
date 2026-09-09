@@ -3,37 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://SEU_EVOLUTION_API_HOST/message/sendText/SUA_INSTANCIA",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "SUA_API_KEY_AQUI"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "{\n  \"number\": \"ID_DO_GRUPO@g.us\",\n  \"text\": \"{{ $json.mensagem }}\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        832,
-        256
-      ],
-      "id": "bfb17489-5049-463a-bfca-51e33f3a7c84",
-      "name": "Enviar WhatsApp"
-    },
-    {
-      "parameters": {
         "formTitle": "Solicitação de Ordem de Entrega",
         "formDescription": "Formulário de solicitação de Ordens de Entrega da BR Entregas e Transportes",
         "formFields": {
@@ -129,12 +98,12 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.5,
       "position": [
-        352,
-        144
+        160,
+        640
       ],
-      "id": "4827c928-8877-44e1-b54d-e4199aaa8791",
+      "id": "58ac182b-e8a4-48ba-b0bd-1e4360fb046e",
       "name": "On form submission1",
-      "webhookId": "36c4363e-beff-409f-9f97-23abd7093a79",
+      "webhookId": "7578f742-a45b-42fb-95cf-53dbd520a525",
       "alwaysOutputData": true
     },
     {
@@ -146,10 +115,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        192,
-        -496
+        0,
+        0
       ],
-      "id": "8969438b-2825-4bf9-ba32-823d8e66adea",
+      "id": "582bfcfe-c18f-4509-9691-25e1a0a031f6",
       "name": "Sticky Note"
     },
     {
@@ -160,64 +129,249 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        592,
-        144
+        400,
+        640
       ],
-      "id": "88c87f17-0a2d-421c-975b-4353e141293b",
+      "id": "4d8a2741-7a95-4744-a506-1a1060304c0a",
       "name": "Parser de Form -> Query SQL"
     },
     {
       "parameters": {
-        "tableId": "ordens_entrega",
-        "fieldsUi": {
-          "fieldValues": [
+        "fromEmail": "testepedropython@gmail.com",
+        "toEmail": "testepedropython@gmail.com",
+        "subject": "Projeto 4SM",
+        "html": "=🚚 <b>NOVA ORDEM DE ENTREGA</b><br>\n━━━━━━━━━━━━━━━━━━━━━━━<br>\n🫡 <b>Solicitante</b>: {{ $('Parser de Form -> Query SQL').item.json.nome_ori }}<br>\n🚗 <b>Veículo</b>: {{ $('Parser de Form -> Query SQL').item.json.veiculo }}<br>\n📦 <b>Carga</b>: {{ $('Parser de Form -> Query SQL').item.json.carga }}<br>\n<br>\n📍 <b>ORIGEM</b><br>\n<b>CEP</b>: {{ $('Parser de Form -> Query SQL').item.json.cep_ori }}<br>\n<b>Endereço</b>: {{ $('Parser de Form -> Query SQL').item.json.end_ori }}<br>\n\n🏁 <b>DESTINO</b><br>\n<b>Nome destinatário</b>: {{ $('Parser de Form -> Query SQL').item.json.nome_dst }}<br>\n<b>CEP</b>: {{ $('Parser de Form -> Query SQL').item.json.cep_dst }}<br>\n<b>Endereço</b>: {{ $('Parser de Form -> Query SQL').item.json.end_dst }}<br>\n<b>Referencia</b>: {{ $('Parser de Form -> Query SQL').item.json.referencia }}<br>\n\n🗺️ <b>ROTA CALCULADA</b><br>\n<b>TEMPO ESTIMADO</b>: {{ $json.duracao_min }}<br>\n<b>DISTANCIA ESTIMADA</b>: {{ $json.distancia_km }}<br>\n━━━━━━━━━━━━━━━━━━━━━━━",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        640
+      ],
+      "id": "b479fc49-c6f9-42d9-b1c2-ccdfcd292199",
+      "name": "Send an Email1",
+      "webhookId": "daff7bcc-5035-4a2c-9d44-29946c919071",
+      "credentials": {
+        "smtp": {
+          "id": "l9mu5l55RUmxnTW2",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "async function cepParaLatLong(cep) {\n  // 1. Busca endereço no ViaCEP\n  cep = cep.replace(\"-\", \"\");\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: `https://viacep.com.br/ws/${cep}/json/`,\n    json: true,\n  });\n\n  if (dados.erro) {\n    throw new Error(`CEP ${cep} não encontrado`);\n  }\n\n  const endereco = `${dados.logradouro}, ${dados.localidade}, ${dados.uf}, Brasil`;\n\n  // 2. Geocodifica no Nominatim\n  const resultados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: \"https://nominatim.openstreetmap.org/search\",\n    qs: {\n      q: endereco,\n      format: \"json\",\n      limit: \"1\",\n    },\n    headers: { \"User-Agent\": \"meu-projeto-faculdade/1.0\" }, // obrigatório!\n    json: true,\n  });\n\n  console.log(\"Calculando distância.....\");\n  await new Promise((resolve) => setTimeout(resolve, 1000)); // respeitar rate limit do Nominatim (1 req/s)\n\n  if (!resultados.length) {\n    throw new Error(`Endereço não geocodificado: ${endereco}`);\n  }\n\n  const lat = parseFloat(resultados[0].lat);\n  const lon = parseFloat(resultados[0].lon);\n  return { lat, lon };\n}\n\nasync function calcularRota(cepOrigem, cepDestino) {\n  const { lat: lat1, lon: lon1 } = await cepParaLatLong.call(this, cepOrigem);\n  const { lat: lat2, lon: lon2 } = await cepParaLatLong.call(this, cepDestino);\n\n  // OSRM espera lon,lat (invertido!)\n  console.log(\"Calculando distância.....\");\n  const url =\n    `https://router.project-osrm.org/route/v1/driving/` +\n    `${lon1},${lat1};${lon2},${lat2}` +\n    `?overview=full&geometries=geojson`;\n\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    qs: { overview: \"full\", geometries: \"geojson\" },\n    json: true,\n  });\n\n  if (dados.code !== \"Ok\") {\n    throw new Error(`Erro ao calcular rota: ${dados.message || dados.code}`);\n  }\n\n  const rota = dados.routes[0];\n\n  return {\n    distancia_km: rota.distance / 1000,\n    duracao_min: rota.duration / 60,\n    geometria: rota.geometry, // GeoJSON LineString da rota\n    origem: { lat: lat1, lon: lon1 },\n    destino: { lat: lat2, lon: lon2 },\n  };\n}\n\n// Uso\nconst cep1 = $input.first().json.cep_ori;\nconst cep2 = $input.first().json.cep_dst;\nconst resultado = await calcularRota.call(this, cep1, cep2);\n\nconsole.log(`Distância: ${resultado.distancia_km.toFixed(1)} km`);\nconsole.log(`Duração: ${resultado.duracao_min.toFixed(0)} min`);\n\nreturn [{ json: resultado }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        640
+      ],
+      "id": "b6db42bb-293b-4a91-90ce-c10582554608",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1N9SLYvYSsqRSgbDYSumDLgdY9AN2fkJQsC957LfExgI",
+          "mode": "list",
+          "cachedResultName": "Teste Bruno",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N9SLYvYSsqRSgbDYSumDLgdY9AN2fkJQsC957LfExgI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1N9SLYvYSsqRSgbDYSumDLgdY9AN2fkJQsC957LfExgI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "distancia": "={{ $('Code in JavaScript').item.json.distancia_km }}",
+            "tempo": "={{ $('Code in JavaScript').item.json.duracao_min }}",
+            "veiculo": "={{ $('Parser de Form -> Query SQL').item.json.veiculo }}",
+            "carga": "={{ $('Parser de Form -> Query SQL').item.json.carga }}",
+            "nomeRemetente": "={{ $('Parser de Form -> Query SQL').item.json.nome_ori }}",
+            "cepOrigem": "={{ $('Parser de Form -> Query SQL').item.json.cep_ori }}",
+            "enderecoOrigem": "={{ $('Parser de Form -> Query SQL').item.json.end_ori }}",
+            "nomeDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.nome_dst }}",
+            "cepDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.cep_dst }}",
+            "enderecoDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.end_dst }}",
+            "referencia": "={{ $('Parser de Form -> Query SQL').item.json.referencia }}"
+          },
+          "matchingColumns": [],
+          "schema": [
             {
-              "fieldId": "veiculo",
-              "fieldValue": "={{ $json.veiculo }}"
+              "id": "veiculo",
+              "displayName": "veiculo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "carga",
-              "fieldValue": "={{ $json.carga }}"
+              "id": "carga",
+              "displayName": "carga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "nome_origem",
-              "fieldValue": "={{ $json.nome_ori }}"
+              "id": "nomeRemetente",
+              "displayName": "nomeRemetente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "cep_origem",
-              "fieldValue": "={{ $json.cep_ori }}"
+              "id": "cepOrigem",
+              "displayName": "cepOrigem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "endereco_origem",
-              "fieldValue": "={{ $json.end_ori }}"
+              "id": "enderecoOrigem",
+              "displayName": "enderecoOrigem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "nome_destino",
-              "fieldValue": "={{ $json.nome_dst }}"
+              "id": "nomeDestinatario",
+              "displayName": "nomeDestinatario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "cep_destino",
-              "fieldValue": "={{ $json.cep_dst }}"
+              "id": "cepDestinatario",
+              "displayName": "cepDestinatario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "endereco_destino",
-              "fieldValue": "={{ $json.end_dst }}"
+              "id": "enderecoDestinatario",
+              "displayName": "enderecoDestinatario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             },
             {
-              "fieldId": "referencia",
-              "fieldValue": "={{ $json.referencia }}"
+              "id": "referencia",
+              "displayName": "referencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "distancia",
+              "displayName": "distancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tempo",
+              "displayName": "tempo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
-          ]
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
         }
       },
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
       "position": [
-        832,
-        32
+        1200,
+        640
       ],
-      "id": "a43a294f-3fca-4f08-a4cc-4b3c257750ce",
-      "name": "Create a row"
+      "id": "b73de7b1-3468-4871-b972-2e2b417376f2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "D4Av8uxrtV7ZLz22",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "066815d8-b79d-49f5-b83d-fb5e3849c07c",
+              "leftValue": "={{ $json['Tipo de veículo:'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        512,
+        784
+      ],
+      "id": "2c56d8e5-1fc1-49ff-83be-6c9329517dfe",
+      "name": "If"
     }
   ],
   "pinData": {},
@@ -229,6 +383,11 @@
             "node": "Parser de Form -> Query SQL",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -237,12 +396,29 @@
       "main": [
         [
           {
-            "node": "Enviar WhatsApp",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
           {
-            "node": "Create a row",
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
             "type": "main",
             "index": 0
           }
@@ -256,11 +432,12 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "cdc92370-44ae-4087-9579-3314066e8164",
+  "versionId": "11a1bb29-9e8f-4219-a4b5-aa00c152c5f6",
   "meta": {
-    "instanceId": "9ae322d0c3918ddca1bf347791dc86fb4199947eaea796d2c1602196d6e96d71"
+    "templateCredsSetupCompleted": true,
+    "instanceId": "10bcb1c43a65794bca0bc0932efb82c8e5c45230d6a53f0b25618dadd80eaadb"
   },
   "nodeGroups": [],
-  "id": "4M06MSOiRfC83Sxu",
+  "id": "j067TeV0RfLdG04v",
   "tags": []
 }
