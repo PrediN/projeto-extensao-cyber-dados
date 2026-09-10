@@ -123,30 +123,16 @@
     },
     {
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const data = $input.item.json;\n\nconst veiculo = data['Tipo de veículo:'] ?? '';\nconst carga   = data['Tipo de carga']   ?? '';\nconst nome_ori = (data['Nome do solicitante'] ?? '').trim();\nconst cep_ori = (data['CEP de Origem']  ?? '').replace('-', '').trim();\nconst end_ori = (data['Endereço completo de Origem '] ?? '').trim();\nconst nome_dst = (data['Nome do destinatario:'] ?? '').trim();\nconst cep_dst = (data['CEP de Destino'] ?? '').replace('-', '').trim();\nconst end_dst = (data['Endereço completo de Destino'] ?? '').trim();\nconst referencia = (data['Referencia'] ?? '').trim();\n\nconst mensagem =\n  `🚚 *NOVA ORDEM DE ENTREGA*\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━━\\n` +\n  `🫡 *Solicitante*: ${nome_ori}\\n` +\n  `🚗 *Veículo:* ${veiculo}\\n` +\n  `📦 *Carga:* ${carga}\\n` +\n  `\\n` +\n  `📍 *ORIGEM*\\n` +\n  `CEP: ${cep_ori}\\n` +\n  `Endereço: ${end_ori}\\n` +\n  `\\n` +\n  `🏁 *DESTINO*\\n` +\n  `Nome destinatário: ${nome_dst}\\n` +\n  `CEP: ${cep_dst}\\n` +\n  `Endereço: ${end_dst}\\n` +\n  `Referencia: ${referencia}\\n` +\n  `━━━━━━━━━━━━━━━━━━━━━━━\\n`;\n\nreturn {\n  veiculo,\n  carga,\n  nome_ori,\n  cep_ori,\n  end_ori,\n  nome_dst,\n  cep_dst,\n  end_dst,\n  referencia,\n  mensagem,\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        400,
-        640
-      ],
-      "id": "4d8a2741-7a95-4744-a506-1a1060304c0a",
-      "name": "Parser de Form -> Query SQL"
-    },
-    {
-      "parameters": {
         "fromEmail": "testepedropython@gmail.com",
         "toEmail": "testepedropython@gmail.com",
         "subject": "Projeto 4SM",
-        "html": "=🚚 <b>NOVA ORDEM DE ENTREGA</b><br>\n━━━━━━━━━━━━━━━━━━━━━━━<br>\n🫡 <b>Solicitante</b>: {{ $('Parser de Form -> Query SQL').item.json.nome_ori }}<br>\n🚗 <b>Veículo</b>: {{ $('Parser de Form -> Query SQL').item.json.veiculo }}<br>\n📦 <b>Carga</b>: {{ $('Parser de Form -> Query SQL').item.json.carga }}<br>\n<br>\n📍 <b>ORIGEM</b><br>\n<b>CEP</b>: {{ $('Parser de Form -> Query SQL').item.json.cep_ori }}<br>\n<b>Endereço</b>: {{ $('Parser de Form -> Query SQL').item.json.end_ori }}<br>\n\n🏁 <b>DESTINO</b><br>\n<b>Nome destinatário</b>: {{ $('Parser de Form -> Query SQL').item.json.nome_dst }}<br>\n<b>CEP</b>: {{ $('Parser de Form -> Query SQL').item.json.cep_dst }}<br>\n<b>Endereço</b>: {{ $('Parser de Form -> Query SQL').item.json.end_dst }}<br>\n<b>Referencia</b>: {{ $('Parser de Form -> Query SQL').item.json.referencia }}<br>\n\n🗺️ <b>ROTA CALCULADA</b><br>\n<b>TEMPO ESTIMADO</b>: {{ $json.duracao_min }}<br>\n<b>DISTANCIA ESTIMADA</b>: {{ $json.distancia_km }}<br>\n━━━━━━━━━━━━━━━━━━━━━━━",
+        "html": "=<h1>🚚 NOVA ORDEM DE ENTREGA</h1><br>\n━━━━━━━━━━━━━━━━━━━━━━━<br>\n<h3>🫡 Solicitante</h3>: {{ $('On form submission1').item.json['Nome do solicitante'] }}<br>\n🚗 <b>Veículo</b>: {{ $('On form submission1').item.json['Tipo de veículo:'] }}<br>\n📦 <b>Carga</b>: {{ $('On form submission1').item.json['Tipo de carga'] }}<br>\n<br>\n<h4>📍 ORIGEM</h4><br>\n<b>CEP</b>: {{ $('On form submission1').item.json['CEP de Origem'] }}<br>\n<b>Endereço</b>: {{ $('On form submission1').item.json['Endereço completo de Origem '] }}<br>\n\n<h4>🏁 DESTINO</h4><br>\n<b>Nome destinatário</b>: {{ $('On form submission1').item.json['Nome do destinatario:'] }}<br>\n<b>CEP</b>: {{ $('On form submission1').item.json['CEP de Destino'] }}<br>\n<b>Endereço</b>: {{ $('On form submission1').item.json['Endereço completo de Destino'] }}<br>\n<b>Referencia</b>: {{ $('On form submission1').item.json.Referencia }}<br>\n\n━━━━━━━━━━━━━━━━━━━━━━━<br>\n<br>\n<h4>🗺️ ROTA CALCULADA</h4><br>\n<b>TEMPO ESTIMADO</b>: {{ $json.duracao_min }}<br>\n<b>DISTANCIA ESTIMADA</b>: {{ $json.distancia_km }}<br>\n<br>\n━━━━━━━━━━━━━━━━━━━━━━━<br>\n\n<h4>💰 VALORES DO PARCEIRO</h4><br>\n\n<b>Valor da entrega</b>: {{ $json.valor_parceiro }}<br>\n<b>Valor cobrado</b>: {{ $json.valor_cliente }}<br>\n<b>Diferença dos valores</b>: {{ $json.margem }}",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        928,
+        832,
         640
       ],
       "id": "b479fc49-c6f9-42d9-b1c2-ccdfcd292199",
@@ -158,19 +144,6 @@
           "name": "SMTP account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "async function cepParaLatLong(cep) {\n  // 1. Busca endereço no ViaCEP\n  cep = cep.replace(\"-\", \"\");\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: `https://viacep.com.br/ws/${cep}/json/`,\n    json: true,\n  });\n\n  if (dados.erro) {\n    throw new Error(`CEP ${cep} não encontrado`);\n  }\n\n  const endereco = `${dados.logradouro}, ${dados.localidade}, ${dados.uf}, Brasil`;\n\n  // 2. Geocodifica no Nominatim\n  const resultados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: \"https://nominatim.openstreetmap.org/search\",\n    qs: {\n      q: endereco,\n      format: \"json\",\n      limit: \"1\",\n    },\n    headers: { \"User-Agent\": \"meu-projeto-faculdade/1.0\" }, // obrigatório!\n    json: true,\n  });\n\n  console.log(\"Calculando distância.....\");\n  await new Promise((resolve) => setTimeout(resolve, 1000)); // respeitar rate limit do Nominatim (1 req/s)\n\n  if (!resultados.length) {\n    throw new Error(`Endereço não geocodificado: ${endereco}`);\n  }\n\n  const lat = parseFloat(resultados[0].lat);\n  const lon = parseFloat(resultados[0].lon);\n  return { lat, lon };\n}\n\nasync function calcularRota(cepOrigem, cepDestino) {\n  const { lat: lat1, lon: lon1 } = await cepParaLatLong.call(this, cepOrigem);\n  const { lat: lat2, lon: lon2 } = await cepParaLatLong.call(this, cepDestino);\n\n  // OSRM espera lon,lat (invertido!)\n  console.log(\"Calculando distância.....\");\n  const url =\n    `https://router.project-osrm.org/route/v1/driving/` +\n    `${lon1},${lat1};${lon2},${lat2}` +\n    `?overview=full&geometries=geojson`;\n\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    qs: { overview: \"full\", geometries: \"geojson\" },\n    json: true,\n  });\n\n  if (dados.code !== \"Ok\") {\n    throw new Error(`Erro ao calcular rota: ${dados.message || dados.code}`);\n  }\n\n  const rota = dados.routes[0];\n\n  return {\n    distancia_km: rota.distance / 1000,\n    duracao_min: rota.duration / 60,\n    geometria: rota.geometry, // GeoJSON LineString da rota\n    origem: { lat: lat1, lon: lon1 },\n    destino: { lat: lat2, lon: lon2 },\n  };\n}\n\n// Uso\nconst cep1 = $input.first().json.cep_ori;\nconst cep2 = $input.first().json.cep_dst;\nconst resultado = await calcularRota.call(this, cep1, cep2);\n\nconsole.log(`Distância: ${resultado.distancia_km.toFixed(1)} km`);\nconsole.log(`Duração: ${resultado.duracao_min.toFixed(0)} min`);\n\nreturn [{ json: resultado }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        672,
-        640
-      ],
-      "id": "b6db42bb-293b-4a91-90ce-c10582554608",
-      "name": "Code in JavaScript"
     },
     {
       "parameters": {
@@ -193,17 +166,20 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "distancia": "={{ $('Code in JavaScript').item.json.distancia_km }}",
-            "tempo": "={{ $('Code in JavaScript').item.json.duracao_min }}",
-            "veiculo": "={{ $('Parser de Form -> Query SQL').item.json.veiculo }}",
-            "carga": "={{ $('Parser de Form -> Query SQL').item.json.carga }}",
-            "nomeRemetente": "={{ $('Parser de Form -> Query SQL').item.json.nome_ori }}",
-            "cepOrigem": "={{ $('Parser de Form -> Query SQL').item.json.cep_ori }}",
-            "enderecoOrigem": "={{ $('Parser de Form -> Query SQL').item.json.end_ori }}",
-            "nomeDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.nome_dst }}",
-            "cepDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.cep_dst }}",
-            "enderecoDestinatario": "={{ $('Parser de Form -> Query SQL').item.json.end_dst }}",
-            "referencia": "={{ $('Parser de Form -> Query SQL').item.json.referencia }}"
+            "distancia": "={{ $('Distancia de rodagem').item.json.distancia_km }}",
+            "tempo": "={{ $('Distancia de rodagem').item.json.duracao_min }}",
+            "veiculo": "={{ $('On form submission1').item.json['Tipo de veículo:'] }}",
+            "carga": "={{ $('On form submission1').item.json['Tipo de carga'] }}",
+            "nomeRemetente": "={{ $('On form submission1').item.json['Nome do solicitante'] }}",
+            "cepOrigem": "={{ $('On form submission1').item.json['CEP de Origem'] }}",
+            "enderecoOrigem": "={{ $('On form submission1').item.json['Endereço completo de Origem '] }}",
+            "nomeDestinatario": "={{ $('On form submission1').item.json['Nome do destinatario:'] }}",
+            "cepDestinatario": "={{ $('On form submission1').item.json['CEP de Destino'] }}",
+            "enderecoDestinatario": "={{ $('On form submission1').item.json['Endereço completo de Destino'] }}",
+            "referencia": "={{ $('On form submission1').item.json.Referencia }}",
+            "valorFrete": "={{ $('Condicional de distancias e veículo').item.json.valor_cliente }}",
+            "valorEntregador": "={{ $('Condicional de distancias e veículo').item.json.valor_parceiro }}",
+            "diferenca": "={{ $('Condicional de distancias e veículo').item.json.margem }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -316,6 +292,36 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "valorFrete",
+              "displayName": "valorFrete",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "valorEntregador",
+              "displayName": "valorEntregador",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "diferenca",
+              "displayName": "diferenca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -328,7 +334,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1200,
+        1056,
         640
       ],
       "id": "b73de7b1-3468-4871-b972-2e2b417376f2",
@@ -342,36 +348,29 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "066815d8-b79d-49f5-b83d-fb5e3849c07c",
-              "leftValue": "={{ $json['Tipo de veículo:'] }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+        "jsCode": "async function cepParaLatLong(cep) {\n  // 1. Busca endereço no ViaCEP\n  cep = cep.replace(\"-\", \"\");\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: `https://viacep.com.br/ws/${cep}/json/`,\n    json: true,\n  });\n\n  if (dados.erro) {\n    throw new Error(`CEP ${cep} não encontrado`);\n  }\n\n  const endereco = `${dados.logradouro}, ${dados.localidade}, ${dados.uf}, Brasil`;\n\n  // 2. Geocodifica no Nominatim\n  const resultados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url: \"https://nominatim.openstreetmap.org/search\",\n    qs: {\n      q: endereco,\n      format: \"json\",\n      limit: \"1\",\n    },\n    headers: { \"User-Agent\": \"meu-projeto-faculdade/1.0\" }, // obrigatório!\n    json: true,\n  });\n\n  console.log(\"Calculando distância.....\");\n  await new Promise((resolve) => setTimeout(resolve, 1000)); // respeitar rate limit do Nominatim (1 req/s)\n\n  if (!resultados.length) {\n    throw new Error(`Endereço não geocodificado: ${endereco}`);\n  }\n\n  const lat = parseFloat(resultados[0].lat);\n  const lon = parseFloat(resultados[0].lon);\n  return { lat, lon };\n}\n\nasync function calcularRota(cepOrigem, cepDestino) {\n  const { lat: lat1, lon: lon1 } = await cepParaLatLong.call(this, cepOrigem);\n  const { lat: lat2, lon: lon2 } = await cepParaLatLong.call(this, cepDestino);\n\n  // OSRM espera lon,lat (invertido!)\n  console.log(\"Calculando distância.....\");\n  const url =\n    `https://router.project-osrm.org/route/v1/driving/` +\n    `${lon1},${lat1};${lon2},${lat2}` +\n    `?overview=full&geometries=geojson`;\n\n  const dados = await this.helpers.httpRequest({\n    method: \"GET\",\n    url,\n    qs: { overview: \"full\", geometries: \"geojson\" },\n    json: true,\n  });\n\n  if (dados.code !== \"Ok\") {\n    throw new Error(`Erro ao calcular rota: ${dados.message || dados.code}`);\n  }\n\n  const rota = dados.routes[0];\n\n  return {\n    distancia_km: rota.distance / 1000,\n    duracao_min: rota.duration / 60,\n    geometria: rota.geometry, // GeoJSON LineString da rota\n    origem: { lat: lat1, lon: lon1 },\n    destino: { lat: lat2, lon: lon2 },\n  };\n}\n\n// Uso\nconst cep1 = $input.first().json['CEP de Origem'];\nconst cep2 = $input.first().json['CEP de Destino'];\nconst resultado = await calcularRota.call(this, cep1, cep2);\n\nconsole.log(`Distância: ${resultado.distancia_km.toFixed(1)} km`);\nconsole.log(`Duração: ${resultado.duracao_min.toFixed(0)} min`);\n\nreturn [{ json: resultado }];"
       },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        512,
-        784
+        384,
+        640
       ],
-      "id": "2c56d8e5-1fc1-49ff-83be-6c9329517dfe",
-      "name": "If"
+      "id": "b6db42bb-293b-4a91-90ce-c10582554608",
+      "name": "Distancia de rodagem"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ====== TARIFÁRIO — EDITE OS VALORES (0) ABAIXO COM SEUS PREÇOS REAIS ======\nconst tarifario = [\n  { veiculo: \"Moto (até 20kg)\",            modo: \"distancia\", faixa_min: 0,  faixa_max: 10,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Moto (até 20kg)\",            modo: \"distancia\", faixa_min: 10, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"Carro de Passeio (até 120)\", modo: \"distancia\", faixa_min: 0,  faixa_max: 20,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Carro de Passeio (até 120)\", modo: \"distancia\", faixa_min: 20, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"Fiorino\",                    modo: \"distancia\", faixa_min: 0,  faixa_max: 30,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Fiorino\",                    modo: \"distancia\", faixa_min: 30, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"VUC\",                        modo: \"distancia\", faixa_min: 0,  faixa_max: 30,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"VUC\",                        modo: \"distancia\", faixa_min: 30, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"Van/Sprinter\",               modo: \"distancia\", faixa_min: 0,  faixa_max: 30,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Van/Sprinter\",               modo: \"distancia\", faixa_min: 30, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"Truck/Toco\",                 modo: \"distancia\", faixa_min: 0,  faixa_max: 50,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Truck/Toco\",                 modo: \"distancia\", faixa_min: 50, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"3/4 (Três quartos)\",         modo: \"distancia\", faixa_min: 0,  faixa_max: 50,   valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"3/4 (Três quartos)\",         modo: \"distancia\", faixa_min: 50, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  { veiculo: \"Cavalo e Carreta\",           modo: \"distancia\", faixa_min: 0,  faixa_max: 100,  valor_cliente: 0, valor_parceiro: 0 },\n  { veiculo: \"Cavalo e Carreta\",           modo: \"distancia\", faixa_min: 100, faixa_max: 9999, valor_cliente: 0, valor_parceiro: 0 },\n\n  // Exemplo: se algum veículo deve ser tarifado por PARADAS em vez de distância,\n  // troque \"modo\" para \"paradas\" nas linhas dele e ajuste faixa_min/faixa_max em nº de paradas:\n  // { veiculo: \"VUC\", modo: \"paradas\", faixa_min: 0, faixa_max: 3, valor_cliente: 0, valor_parceiro: 0 },\n];\n// ============================================================================\n\nconst veiculo = $('On form submission1').first().json['Tipo de veículo:'];\nconst distancia_km = $input.first().json.distancia_km;\n// campo \"paradas\" ainda não existe no formulário atual — só necessário se algum\n// veículo usar modo \"paradas\". Adicione um fieldLabel numérico no formTrigger.\n// const paradas = $('Parser de Form -> Query SQL').item.json.paradas ?? null;\n\nconst regrasDoVeiculo = tarifario.filter((r) => r.veiculo === veiculo);\n\nif (regrasDoVeiculo.length === 0) {\n  throw new Error(`Nenhuma regra de tarifa cadastrada para o veículo \"${veiculo}\"`);\n}\n\nconst modo = regrasDoVeiculo[0].modo;\nconst valorComparado = modo === 'paradas' ? paradas : distancia_km;\n\nif (modo === 'paradas' && paradas === null) {\n  throw new Error(`Veículo \"${veiculo}\" é tarifado por paradas, mas o campo \"paradas\" não veio no formulário.`);\n}\n\nconst regra = regrasDoVeiculo.find(\n  (r) => valorComparado >= r.faixa_min && valorComparado <= r.faixa_max\n);\n\nif (!regra) {\n  throw new Error(\n    `Nenhuma faixa cadastrada para \"${veiculo}\" cobre o valor ${valorComparado} (modo: ${modo}).`\n  );\n}\n\nconst valor_cliente = regra.valor_cliente;\nconst valor_parceiro = regra.valor_parceiro;\nconst margem = valor_cliente - valor_parceiro;\n\nreturn {\n  ...$json,\n  modo_tarifacao: modo,\n  valor_cliente,\n  valor_parceiro,\n  margem,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        640
+      ],
+      "id": "f85a5500-35a0-476c-a31d-6ff7bc4fb235",
+      "name": "Condicional de distancias e veículo"
     }
   ],
   "pinData": {},
@@ -380,34 +379,7 @@
       "main": [
         [
           {
-            "node": "Parser de Form -> Query SQL",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parser de Form -> Query SQL": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Send an Email1",
+            "node": "Distancia de rodagem",
             "type": "main",
             "index": 0
           }
@@ -424,6 +396,28 @@
           }
         ]
       ]
+    },
+    "Distancia de rodagem": {
+      "main": [
+        [
+          {
+            "node": "Condicional de distancias e veículo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Condicional de distancias e veículo": {
+      "main": [
+        [
+          {
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -432,7 +426,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "11a1bb29-9e8f-4219-a4b5-aa00c152c5f6",
+  "versionId": "ed97e61b-5c42-47c8-a14d-b7ce1f9d94ca",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "10bcb1c43a65794bca0bc0932efb82c8e5c45230d6a53f0b25618dadd80eaadb"
